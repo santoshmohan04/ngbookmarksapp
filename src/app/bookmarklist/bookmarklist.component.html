@@ -1,0 +1,152 @@
+<div class="container mt-5">
+  <div class="row mb-4">
+    <div class="col">
+      <h1>Bookmarks Manager</h1>
+    </div>
+    <div class="col-auto">
+      <button
+        type="button"
+        class="btn btn-primary mx-3"
+        (click)="openModal(addBookmarkModal)"
+      >
+        Add Bookmark
+      </button>
+      <button
+        type="button"
+        class="btn btn-secondary"
+        (click)="openModal(addCategoryModal)"
+      >
+        Add Category
+      </button>
+    </div>
+  </div>
+  <div class="row mb-4">
+    <div class="col">
+      <input
+        type="text"
+        id="search"
+        class="form-control"
+        placeholder="Search bookmarks..."
+        (input)="filterBookmarks($event)"
+      />
+    </div>
+  </div>
+  <div id="bookmarks-container">
+    @for (item of bookmarks; track $index) {
+    <div class="folder-title">
+      <h3>{{ item.folderTitle }}</h3>
+
+      <div class="row">
+        @for (t of item.links; track $index) {
+        <div class="col-md-4">
+          <div class="card bookmark-card">
+            <div class="card-body">
+              <h5 class="card-title">{{ t.title }}</h5>
+              <img
+                class="bookmark-icon"
+                [src]="
+                  t.icon ? t.icon : 'https://via.placeholder.com/32?text=B'
+                "
+                (error)="onImageError($event)"
+              />
+              <a class="btn btn-primary btn-sm" [href]="t.url" target="_blank"
+                >Open</a
+              >
+              <button
+                type="button"
+                class="btn btn-danger btn-sm"
+                (click)="deleteBookmark(t.title)"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+        }
+      </div>
+    </div>
+    }
+  </div>
+  @if (this.filteredData.length > 0) {
+  <ngb-pagination
+    [(page)]="currentPage"
+    [pageSize]="itemsPerPage"
+    [collectionSize]="filteredData.length"
+    (pageChange)="changePage($event)"
+  />
+  }
+</div>
+
+<!-- Add Bookmark Modal -->
+<ng-template #addBookmarkModal let-modal>
+      <div class="modal-header">
+        <h5 class="modal-title" id="addBookmarkModalLabel">Add Bookmark</h5>
+        <button
+          type="button"
+          class="btn-close"
+          (click)="modal.dismiss('Cross click')"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="addBookmarkForm" (ngSubmit)="onAddBookmark(addBookmarkForm)">
+          <div class="mb-3">
+            <label for="bookmarkTitle" class="form-label">Title</label>
+            <input
+              type="text"
+              class="form-control"
+              id="bookmarkTitle"
+              formControlName="bookmarkTitle"
+            />
+          </div>
+          <div class="mb-3">
+            <label for="bookmarkURL" class="form-label">URL</label>
+            <input type="url" class="form-control" id="bookmarkURL" formControlName="bookmarkURL" />
+          </div>
+          <div class="mb-3">
+            <label for="bookmarkIcon" class="form-label">Icon URL</label>
+            <input type="url" class="form-control" id="bookmarkIcon" formControlName="bookmarkIcon"/>
+          </div>
+          <div class="mb-3">
+            <label for="bookmarkFolder" class="form-label">Folder</label>
+            <select class="form-select" id="bookmarkFolder" formControlName="bookmarkFolder">
+              @for (item of bookmarks_data; track $index) {
+              <option [value]="item.title">{{item.title}}</option>
+              }
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary" [disabled]="addBookmarkForm.invalid">Add Bookmark</button>
+        </form>
+      </div>
+</ng-template>
+
+<!-- Add Category Modal -->
+<ng-template #addCategoryModal let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title" id="addCategoryModalLabel">Add Category</h5>
+    <button
+      type="button"
+      class="btn-close"
+      (click)="modal.dismiss('Cross click')"
+      aria-label="Close"
+    ></button>
+  </div>
+  <div class="modal-body">
+    <form [formGroup]="addCategoryForm" (ngSubmit)="onAddCategory(addCategoryForm)">
+      <div class="mb-3">
+        <label for="categoryTitle" class="form-label"
+          >Category Title</label
+        >
+        <input
+          type="text"
+          class="form-control"
+          id="categoryTitle"
+          formControlName="categoryTitle"
+        />
+      </div>
+      <button type="submit" class="btn btn-primary" [disabled]="addCategoryForm.invalid">
+        Add Category
+      </button>
+    </form>
+  </div>
+</ng-template>
